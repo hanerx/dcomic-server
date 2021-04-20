@@ -1,0 +1,9 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {},
+        "version": "1.0.0",
+        "title": "DComic Server API Doc"
+    },
+    "paths": {}
+}
