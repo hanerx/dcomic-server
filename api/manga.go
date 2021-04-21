@@ -6,25 +6,25 @@ import (
 )
 
 type ComicChapter struct {
-	Title     string   `json:"title"`
-	ChapterId string   `json:"chapter_id"`
-	ComicId   string   `json:"comic_id"`
-	Pages     []string `json:"data"`
-	Timestamp int      `json:"timestamp"`
+	Title     string   `json:"title" bson:"title"`
+	ChapterId string   `json:"chapter_id" bson:"chapter_id"`
+	ComicId   string   `json:"comic_id" bson:"comic_id"`
+	Pages     []string `json:"data" bson:"pages"`
+	Timestamp int      `json:"timestamp" bson:"timestamp"`
 }
 
 type ComicGroup struct {
-	Title    string         `json:"title"`
-	GroupId  string         `json:"name"`
-	Chapters []ComicChapter `json:"data"`
+	Title    string         `json:"title" bson:"title"`
+	GroupId  string         `json:"name" bson:"group_id"`
+	Chapters []ComicChapter `json:"data" bson:"chapters"`
 }
 
 type ComicDetail struct {
-	Title       string       `json:"title"`
-	Cover       string       `json:"cover"`
-	Description string       `json:"description"`
-	ComicId     string       `json:"comic_id"`
-	Groups      []ComicGroup `json:"data"`
+	Title       string       `json:"title" bson:"title"`
+	Cover       string       `json:"cover" bson:"cover"`
+	Description string       `json:"description" bson:"description"`
+	ComicId     string       `json:"comic_id" bson:"comic_id"`
+	Groups      []ComicGroup `json:"data" bson:"groups"`
 }
 
 func addComicApi(r *gin.Engine) {
@@ -62,7 +62,7 @@ func addTestComic(context *gin.Context) {
 func getComicById(context *gin.Context) {
 	comicId := context.Param("comic_id")
 	var detail ComicDetail
-	err := database.Databases.C("comic").Find(map[string]string{"comicid": comicId}).One(&detail)
+	err := database.Databases.C("comic").Find(map[string]string{"comic_id": comicId}).One(&detail)
 	if err == nil {
 		context.JSON(200, detail)
 	} else {
