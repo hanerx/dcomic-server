@@ -8,6 +8,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dchest/safefile v0.0.0-20151022103144-855e8d98f185 // indirect
 	github.com/gin-gonic/gin v1.7.1
+	github.com/go-mgo/mgo v0.0.0-20180705113738-7446a0344b78
 	github.com/go-openapi/spec v0.20.3 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-playground/validator/v10 v10.5.0 // indirect
@@ -31,5 +32,6 @@ require (
 	golang.org/x/sys v0.0.0-20210420072515-93ed5bcd2bfe // indirect
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/tools v0.1.0 // indirect
+	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

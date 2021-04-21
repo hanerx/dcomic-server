@@ -1,9 +1,15 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {},
-        "version": "1.0.0",
-        "title": "DComic Server API Doc"
+        "description": "DComic API Doc",
+        "title": "DComic API",
+        "termsOfService": "http://github.com/hanerx",
+        "contact": {
+            "name": "GITHUB ISSUE",
+            "url": "http://www.github.com/hanerx/dcomic-server/issue"
+        },
+        "version": "1.0.0"
     },
+    "host": "127.0.0.1:8081",
     "paths": {}
 }

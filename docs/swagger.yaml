@@ -1,4 +1,11 @@
+host: 127.0.0.1:8081
 info:
-  contact: {}
+  contact:
+    name: GITHUB ISSUE
+    url: http://www.github.com/hanerx/dcomic-server/issue
+  description: DComic API Doc
+  termsOfService: http://github.com/hanerx
+  title: DComic API
+  version: 1.0.0
 paths: {}
 swagger: "2.0"

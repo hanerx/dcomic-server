@@ -18,7 +18,11 @@ var doc = `{
     "info": {
         "description": "{{.Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://github.com/hanerx",
+        "contact": {
+            "name": "GITHUB ISSUE",
+            "url": "http://www.github.com/hanerx/dcomic-server/issue"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -37,12 +41,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "",
-	Host:        "",
+	Version:     "1.0.0",
+	Host:        "127.0.0.1:8081",
 	BasePath:    "",
 	Schemes:     []string{},
-	Title:       "",
-	Description: "",
+	Title:       "DComic API",
+	Description: "DComic API Doc",
 }
 
 type s struct{}
