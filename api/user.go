@@ -14,6 +14,6 @@ func addUserApi(r *gin.Engine) {
 	user := r.Group("/user")
 	{
 		user.POST("/login")
-
+		user.GET("/")
 	}
 }

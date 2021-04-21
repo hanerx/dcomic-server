@@ -15,8 +15,8 @@ const (
 	MONGO_HOST = "localhost"
 	MONGO_PORT = "27017"
 	MONGO_DB   = "DComic"
-	MONGO_USER = "root"
-	MONGO_PWD  = "zhangyuk"
+	MONGO_USER = ""
+	MONGO_PWD  = ""
 )
 
 func init() {
