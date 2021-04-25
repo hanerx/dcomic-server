@@ -1,6 +1,7 @@
 package api
 
 import (
+	_ "dcomicServer/docs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,15 +23,7 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
-// @title DComic API
-// @version 1.0.0
-// @description  DComic API Doc
-// @termsOfService http://github.com/hanerx
 
-// @contact.name GITHUB ISSUE
-// @contact.url http://www.github.com/hanerx/dcomic-server/issue
-
-//@host 127.0.0.1:8081
 func Run() {
 	r := setupRouter()
 	// Listen and Server in 0.0.0.0:8080

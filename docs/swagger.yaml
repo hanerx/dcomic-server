@@ -1,11 +1,384 @@
-host: 127.0.0.1:8081
+definitions:
+  model.ComicChapter:
+    properties:
+      chapter_id:
+        type: string
+      comic_id:
+        type: string
+      data:
+        items:
+          type: string
+        type: array
+      timestamp:
+        type: integer
+      title:
+        type: string
+    type: object
+  model.ComicDetail:
+    properties:
+      comic_id:
+        type: string
+      cover:
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.ComicGroup'
+        type: array
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  model.ComicGroup:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.ComicChapter'
+        type: array
+      name:
+        type: string
+      title:
+        type: string
+    type: object
+  model.StandJsonStruct:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        type: object
+      msg:
+        example: success
+        type: string
+    type: object
+host: localhost:8080
 info:
   contact:
     name: GITHUB ISSUE
-    url: http://www.github.com/hanerx/dcomic-server/issue
+    url: http://www.github.com/hanerx/dcomic-server/issues
   description: DComic API Doc
   termsOfService: http://github.com/hanerx
   title: DComic API
   version: 1.0.0
-paths: {}
+paths:
+  /comic/:
+    get:
+      description: 获取所有漫画详情
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ComicDetail'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取所有漫画
+      tags:
+      - comic
+  /comic/{comic_id}:
+    delete:
+      description: 通过comic_id删除漫画
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.StandJsonStruct'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 删除漫画
+      tags:
+      - comic
+    get:
+      description: 通过comic_id获取漫画详情
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicDetail'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取单个漫画的漫画详情
+      tags:
+      - comic
+    post:
+      consumes:
+      - application/json
+      description: 新建一个新漫画
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 漫画详情
+        in: body
+        name: comic
+        required: true
+        schema:
+          $ref: '#/definitions/model.ComicDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.StandJsonStruct'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 新建漫画
+      tags:
+      - comic
+    put:
+      consumes:
+      - application/json
+      description: 通过comic_id更新漫画内容
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 漫画详情
+        in: body
+        name: comic
+        required: true
+        schema:
+          $ref: '#/definitions/model.ComicDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.StandJsonStruct'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 更新漫画内容
+      tags:
+      - comic
+  /comic/{comic_id}/{group_id}:
+    get:
+      description: 通过group_id获取漫画章节组（卷ID）
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              allOf:
+              - $ref: '#/definitions/model.StandJsonStruct'
+              - properties:
+                  data:
+                    $ref: '#/definitions/model.ComicGroup'
+                type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取漫画章节组
+      tags:
+      - group
+  /comic/{comic_id}/{group_id}/{chapter_id}:
+    get:
+      description: 通过chapter_id获取漫画章节
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      - description: 章节ID
+        in: path
+        name: chapter_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              allOf:
+              - $ref: '#/definitions/model.StandJsonStruct'
+              - properties:
+                  data:
+                    $ref: '#/definitions/model.ComicChapter'
+                type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取漫画章节
+      tags:
+      - chapter
+  /upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传图片并通过ipfs客户端上传至网络，返回cid
+      parameters:
+      - description: 图片
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 上传图片
+      tags:
+      - upload
+  /upload/ipfs/{cid}:
+    get:
+      description: 输入cid，通过cid获取ipfs网络内容
+      parameters:
+      - description: cid
+        in: path
+        name: cid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取ipfs网络内容
+      tags:
+      - upload
+  /user/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 通过用户名密码登录
+      parameters:
+      - description: 用户名
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 登录
+      tags:
+      - user
+  /user/logout:
+    post:
+      description: 通过token进行登出
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
+      summary: 登出
+      tags:
+      - user
+securityDefinitions:
+  token:
+    in: header
+    name: token
+    type: apiKey
 swagger: "2.0"

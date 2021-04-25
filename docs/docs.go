@@ -21,13 +21,592 @@ var doc = `{
         "termsOfService": "http://github.com/hanerx",
         "contact": {
             "name": "GITHUB ISSUE",
-            "url": "http://www.github.com/hanerx/dcomic-server/issue"
+            "url": "http://www.github.com/hanerx/dcomic-server/issues"
         },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/comic/": {
+            "get": {
+                "description": "获取所有漫画详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comic"
+                ],
+                "summary": "获取所有漫画",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ComicDetail"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/comic/{comic_id}": {
+            "get": {
+                "description": "通过comic_id获取漫画详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comic"
+                ],
+                "summary": "获取单个漫画的漫画详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "漫画ID",
+                        "name": "comic_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "通过comic_id更新漫画内容",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comic"
+                ],
+                "summary": "更新漫画内容",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "漫画ID",
+                        "name": "comic_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "漫画详情",
+                        "name": "comic",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ComicDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.StandJsonStruct"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "新建一个新漫画",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comic"
+                ],
+                "summary": "新建漫画",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "漫画ID",
+                        "name": "comic_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "漫画详情",
+                        "name": "comic",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ComicDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.StandJsonStruct"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "通过comic_id删除漫画",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comic"
+                ],
+                "summary": "删除漫画",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "漫画ID",
+                        "name": "comic_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.StandJsonStruct"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/comic/{comic_id}/{group_id}": {
+            "get": {
+                "description": "通过group_id获取漫画章节组（卷ID）",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "group"
+                ],
+                "summary": "获取漫画章节组",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "漫画ID",
+                        "name": "comic_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "组ID",
+                        "name": "group_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/definitions/model.StandJsonStruct"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "$ref": "#/definitions/model.ComicGroup"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/comic/{comic_id}/{group_id}/{chapter_id}": {
+            "get": {
+                "description": "通过chapter_id获取漫画章节",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chapter"
+                ],
+                "summary": "获取漫画章节",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "漫画ID",
+                        "name": "comic_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "组ID",
+                        "name": "group_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "章节ID",
+                        "name": "chapter_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/definitions/model.StandJsonStruct"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "$ref": "#/definitions/model.ComicChapter"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/upload/image": {
+            "post": {
+                "description": "上传图片并通过ipfs客户端上传至网络，返回cid",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upload"
+                ],
+                "summary": "上传图片",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "图片",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/upload/ipfs/{cid}": {
+            "get": {
+                "description": "输入cid，通过cid获取ipfs网络内容",
+                "tags": [
+                    "upload"
+                ],
+                "summary": "获取ipfs网络内容",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "cid",
+                        "name": "cid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "description": "通过用户名密码登录",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/logout": {
+            "post": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
+                "description": "通过token进行登出",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "登出",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.ComicChapter": {
+            "type": "object",
+            "properties": {
+                "chapter_id": {
+                    "type": "string"
+                },
+                "comic_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ComicDetail": {
+            "type": "object",
+            "properties": {
+                "comic_id": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ComicGroup"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ComicGroup": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ComicChapter"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.StandJsonStruct": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "object"
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "token": {
+            "type": "apiKey",
+            "name": "token",
+            "in": "header"
+        }
+    }
 }`
 
 type swaggerInfo struct {
@@ -42,7 +621,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0.0",
-	Host:        "127.0.0.1:8081",
+	Host:        "localhost:8080",
 	BasePath:    "",
 	Schemes:     []string{},
 	Title:       "DComic API",
