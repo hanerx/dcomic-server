@@ -28,31 +28,40 @@ type ComicDetail struct {
 }
 
 type ComicDetailGetter interface {
-	GetGroup(groupId string) (ComicGroup, error)
-	AddGroup(group ComicGroup)
+	GetGroup(groupId string) (*ComicGroup, error)
+	AddGroup(group ComicGroup) error
 	UpdateGroup(groupId string, group ComicGroup) error
 	DeleteGroup(groupId string) error
+	GetChapter(groupId string, chapterId string) (*ComicChapter, error)
+	AddChapter(groupId string, chapter ComicChapter) error
+	UpdateChapter(groupId string, chapterId string, chapter ComicChapter) error
+	DeleteChapter(groupId string, chapterId string) error
 }
 
 type ComicGroupGetter interface {
-	GetChapter(chapterId string) (ComicChapter, error)
-	AddChapter(chapter ComicChapter)
+	GetChapter(chapterId string) (*ComicChapter, error)
+	AddChapter(chapter ComicChapter) error
 	UpdateChapter(chapterId string, chapter ComicChapter) error
 	DeleteChapter(chapterId string) error
 }
 
-func (comicDetail *ComicDetail) GetGroup(groupId string) (ComicGroup, error) {
+func (comicDetail *ComicDetail) GetGroup(groupId string) (*ComicGroup, error) {
 	for i := 0; i < len(comicDetail.Groups); i++ {
 		group := comicDetail.Groups[i]
 		if group.GroupId == groupId {
-			return group, nil
+			return &comicDetail.Groups[i], nil
 		}
 	}
-	return ComicGroup{}, errors.New(fmt.Sprintf("no group named %s", groupId))
+	return &ComicGroup{}, errors.New(fmt.Sprintf("no group named %s", groupId))
 }
 
-func (comicDetail *ComicDetail) AddGroup(group ComicGroup) {
-	comicDetail.Groups = append(comicDetail.Groups, group)
+func (comicDetail *ComicDetail) AddGroup(group ComicGroup) error {
+	_, err := comicDetail.GetGroup(group.GroupId)
+	if err != nil {
+		comicDetail.Groups = append(comicDetail.Groups, group)
+		return nil
+	}
+	return errors.New("group already exist")
 }
 
 func (comicDetail *ComicDetail) UpdateGroup(groupId string, group ComicGroup) error {
@@ -77,18 +86,55 @@ func (comicDetail *ComicDetail) DeleteGroup(groupId string) error {
 	return errors.New(fmt.Sprintf("no group named %s", groupId))
 }
 
-func (group *ComicGroup) GetChapter(chapterId string) (ComicChapter, error) {
+func (comicDetail *ComicDetail) GetChapter(groupId string, chapterId string) (*ComicChapter, error) {
+	group, err := comicDetail.GetGroup(groupId)
+	if err != nil {
+		return nil, err
+	}
+	return group.GetChapter(chapterId)
+}
+
+func (comicDetail *ComicDetail) AddChapter(groupId string, chapter ComicChapter) error {
+	group, err := comicDetail.GetGroup(groupId)
+	if err != nil {
+		return err
+	}
+	return group.AddChapter(chapter)
+}
+
+func (comicDetail *ComicDetail) UpdateChapter(groupId string, chapterId string, chapter ComicChapter) error {
+	group, err := comicDetail.GetGroup(groupId)
+	if err != nil {
+		return err
+	}
+	return group.UpdateChapter(chapterId, chapter)
+}
+
+func (comicDetail *ComicDetail) DeleteChapter(groupId string, chapterId string) error {
+	group, err := comicDetail.GetGroup(groupId)
+	if err != nil {
+		return err
+	}
+	return group.DeleteChapter(chapterId)
+}
+
+func (group *ComicGroup) GetChapter(chapterId string) (*ComicChapter, error) {
 	for i := 0; i < len(group.Chapters); i++ {
 		chapter := group.Chapters[i]
 		if chapter.ChapterId == chapterId {
-			return chapter, nil
+			return &group.Chapters[i], nil
 		}
 	}
-	return ComicChapter{}, errors.New(fmt.Sprintf("no chapter named %s", chapterId))
+	return nil, errors.New(fmt.Sprintf("no chapter named %s", chapterId))
 }
 
-func (group *ComicGroup) AddChapter(chapter ComicChapter) {
+func (group *ComicGroup) AddChapter(chapter ComicChapter) error {
+	_, err := group.GetChapter(chapter.ChapterId)
+	if err == nil {
+		return errors.New("chapter already exist")
+	}
 	group.Chapters = append(group.Chapters, chapter)
+	return nil
 }
 
 func (group *ComicGroup) UpdateChapter(chapterId string, chapter ComicChapter) error {

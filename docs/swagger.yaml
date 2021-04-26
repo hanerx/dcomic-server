@@ -70,9 +70,12 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.ComicDetail'
-            type: array
+            allOf:
+            - $ref: '#/definitions/model.ComicDetail'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicDetail'
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -95,9 +98,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.StandJsonStruct'
-            type: array
+            $ref: '#/definitions/model.StandJsonStruct'
         "500":
           description: Internal Server Error
           schema:
@@ -154,9 +155,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.StandJsonStruct'
-            type: array
+            $ref: '#/definitions/model.StandJsonStruct'
         "500":
           description: Internal Server Error
           schema:
@@ -186,9 +185,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.StandJsonStruct'
-            type: array
+            $ref: '#/definitions/model.StandJsonStruct'
         "500":
           description: Internal Server Error
           schema:
@@ -197,6 +194,37 @@ paths:
       tags:
       - comic
   /comic/{comic_id}/{group_id}:
+    delete:
+      description: 通过group_id删除章节组
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 删除章节组
+      tags:
+      - group
     get:
       description: 通过group_id获取漫画章节组（卷ID）
       parameters:
@@ -231,7 +259,129 @@ paths:
       summary: 获取漫画章节组
       tags:
       - group
+    post:
+      consumes:
+      - application/json
+      description: 添加一个新的章节组
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      - description: 组详情
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/model.ComicGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 添加章节组
+      tags:
+      - group
+    put:
+      consumes:
+      - application/json
+      description: 通过group_id修改章节组
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      - description: 组详情
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/model.ComicGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 修改章节组
+      tags:
+      - group
   /comic/{comic_id}/{group_id}/{chapter_id}:
+    delete:
+      description: 通过chapter_id删除漫画章节
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      - description: 章节ID
+        in: path
+        name: chapter_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 删除漫画章节
+      tags:
+      - chapter
     get:
       description: 通过chapter_id获取漫画章节
       parameters:
@@ -256,14 +406,12 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              allOf:
-              - $ref: '#/definitions/model.StandJsonStruct'
-              - properties:
-                  data:
-                    $ref: '#/definitions/model.ComicChapter'
-                type: object
-            type: array
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicChapter'
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -271,6 +419,130 @@ paths:
       summary: 获取漫画章节
       tags:
       - chapter
+    post:
+      consumes:
+      - application/json
+      description: 通过chapter_id添加漫画章节
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      - description: 章节ID
+        in: path
+        name: chapter_id
+        required: true
+        type: string
+      - description: 章节详情
+        in: body
+        name: chapter
+        required: true
+        schema:
+          $ref: '#/definitions/model.ComicChapter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 添加漫画章节
+      tags:
+      - chapter
+    put:
+      consumes:
+      - application/json
+      description: 通过chapter_id修改漫画章节
+      parameters:
+      - description: 漫画ID
+        in: path
+        name: comic_id
+        required: true
+        type: string
+      - description: 组ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      - description: 章节ID
+        in: path
+        name: chapter_id
+        required: true
+        type: string
+      - description: 章节详情
+        in: body
+        name: chapter
+        required: true
+        schema:
+          $ref: '#/definitions/model.ComicChapter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 修改漫画章节
+      tags:
+      - chapter
+  /comic/search/{keyword}:
+    get:
+      description: 通过关键词搜索漫画
+      parameters:
+      - description: 关键词
+        in: path
+        name: keyword
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ComicDetail'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicDetail'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 搜索漫画
+      tags:
+      - comic
   /upload/image:
     post:
       consumes:
