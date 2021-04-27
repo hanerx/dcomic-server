@@ -25,6 +25,9 @@ type ComicDetail struct {
 	Description string       `json:"description" bson:"description"`
 	ComicId     string       `json:"comic_id" bson:"comic_id"`
 	Groups      []ComicGroup `json:"data" bson:"groups"`
+	Timestamp   int64        `json:"timestamp" bson:"timestamp"`
+	Redirect    bool         `json:"redirect" bson:"redirect"`
+	RedirectUrl string       `json:"redirect_url" bson:"redirect_url"`
 }
 
 type ComicDetailGetter interface {

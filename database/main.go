@@ -21,18 +21,19 @@ func init() {
 	}
 	Session, MgoError = mgo.Dial(fmt.Sprintf("%s:%s", os.Getenv("database_addr"), os.Getenv("database_port")))
 	if MgoError != nil {
-		fmt.Println("链接失败！")
-		fmt.Print(MgoError.Error())
-		os.Exit(1)
+		log.Fatal(MgoError)
 	}
 	// 选择DB
 	Databases = Session.DB(os.Getenv("database_db"))
 	// 登陆
-	//MgoError = Databases.Login(MONGO_USER, MONGO_PWD)
-	//if MgoError != nil {
-	//	fmt.Println("登陆验证失败！")
-	//	os.Exit(1)
-	//}
+	username, exist := os.LookupEnv("database_username")
+	password, passwordExist := os.LookupEnv("database_password")
+	if exist && passwordExist {
+		MgoError = Databases.Login(username, password)
+		if MgoError != nil {
+			log.Fatal(MgoError)
+		}
+	}
+
 	// defer Session.Close()
 }
-

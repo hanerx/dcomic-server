@@ -15,8 +15,11 @@ func addServerApi(r *gin.Engine) {
 	{
 		server.GET("/")
 		server.POST("/add", TokenAuth(addServer))
-		server.DELETE("/delete",TokenAuth(deleteServer))
+		server.DELETE("/delete", TokenAuth(deleteServer))
 		server.GET("/state", getServerState)
+		node := server.Group("/node")
+		node.PUT("/", nodeUpdate)
+		node.GET("/")
 	}
 }
 
@@ -96,4 +99,39 @@ func deleteServer(context *gin.Context) {
 	} else {
 		context.JSON(400, model.StandJsonStruct{Code: 400, Msg: "cannot find address"})
 	}
+}
+
+func nodeUpdate(context *gin.Context) {
+	var comics []model.ComicDetail
+	err := context.BindJSON(&comics)
+	if err == nil {
+		failed := 0
+		success := 0
+		for i := 0; i < len(comics); i++ {
+			var comic model.ComicDetail
+			err = database.Databases.C("comic").Find(map[string]string{"comic_id": comics[i].ComicId}).One(&comic)
+			if err == nil && comic.Timestamp < comics[i].Timestamp {
+				err = database.Databases.C("comic").Update(map[string]string{"comic_id": comics[i].ComicId}, comics[i])
+				if err == nil {
+					success++
+				} else {
+					failed++
+				}
+			} else if err != nil {
+				err = database.Databases.C("comic").Insert(comics[i])
+				if err == nil {
+					success++
+				} else {
+					failed++
+				}
+			}
+		}
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: map[string]int{"success": success, "failed": failed}})
+	} else {
+		context.JSON(400, model.StandJsonStruct{Code: 400, Msg: err.Error()})
+	}
+}
+
+func nodeGet(context *gin.Context)  {
+
 }
