@@ -14,8 +14,8 @@ func addServerApi(r *gin.Engine) {
 	server := r.Group("/server")
 	{
 		server.GET("/")
-		server.POST("/add", addServer)
-		server.DELETE("/delete", deleteServer)
+		server.POST("/add", TokenAuth(addServer))
+		server.DELETE("/delete",TokenAuth(deleteServer))
 		server.GET("/state", getServerState)
 	}
 }
@@ -44,6 +44,7 @@ func getServerState(context *gin.Context) {
 // 添加server
 // @Summary 添加分布式服务器
 // @Description 添加一个分布式服务器
+// @security token
 // @Tags server
 // @Accept json
 // @Param server body model.Node true "服务器详情"
@@ -75,6 +76,7 @@ func addServer(context *gin.Context) {
 // 删除server
 // @Summary 删除分布式服务器
 // @Description 删除一个分布式服务器
+// @security token
 // @Tags server
 // @Param address query string true "服务器地址"
 // @Produce json

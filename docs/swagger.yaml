@@ -74,6 +74,8 @@ definitions:
         type: string
       nickname:
         type: string
+      password:
+        type: string
       rights:
         items:
           $ref: '#/definitions/model.UserRight'
@@ -144,6 +146,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 删除漫画
       tags:
       - comic
@@ -201,6 +205,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 新建漫画
       tags:
       - comic
@@ -231,6 +237,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 更新漫画内容
       tags:
       - comic
@@ -263,6 +271,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 删除章节组
       tags:
       - group
@@ -340,6 +350,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 添加章节组
       tags:
       - group
@@ -383,6 +395,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 修改章节组
       tags:
       - group
@@ -420,6 +434,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 删除漫画章节
       tags:
       - chapter
@@ -505,6 +521,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 添加漫画章节
       tags:
       - chapter
@@ -553,6 +571,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 修改漫画章节
       tags:
       - chapter
@@ -611,6 +631,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 添加分布式服务器
       tags:
       - server
@@ -638,6 +660,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 删除分布式服务器
       tags:
       - server
@@ -689,6 +713,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
       summary: 上传图片
       tags:
       - upload

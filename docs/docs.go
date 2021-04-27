@@ -160,6 +160,11 @@ var doc = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "通过comic_id更新漫画内容",
                 "consumes": [
                     "application/json"
@@ -205,6 +210,11 @@ var doc = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "新建一个新漫画",
                 "consumes": [
                     "application/json"
@@ -250,6 +260,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "通过comic_id删除漫画",
                 "produces": [
                     "application/json"
@@ -340,6 +355,11 @@ var doc = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "通过group_id修改章节组",
                 "consumes": [
                     "application/json"
@@ -404,6 +424,11 @@ var doc = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "添加一个新的章节组",
                 "consumes": [
                     "application/json"
@@ -468,6 +493,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "通过group_id删除章节组",
                 "produces": [
                     "application/json"
@@ -575,6 +605,11 @@ var doc = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "通过chapter_id修改漫画章节",
                 "consumes": [
                     "application/json"
@@ -646,6 +681,11 @@ var doc = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "通过chapter_id添加漫画章节",
                 "consumes": [
                     "application/json"
@@ -717,6 +757,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "通过chapter_id删除漫画章节",
                 "produces": [
                     "application/json"
@@ -772,6 +817,11 @@ var doc = `{
         },
         "/server/add": {
             "post": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "添加一个分布式服务器",
                 "consumes": [
                     "application/json"
@@ -818,6 +868,11 @@ var doc = `{
         },
         "/server/delete": {
             "delete": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "删除一个分布式服务器",
                 "produces": [
                     "application/json"
@@ -897,6 +952,11 @@ var doc = `{
         },
         "/upload/image": {
             "post": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
                 "description": "上传图片并通过ipfs客户端上传至网络，返回cid",
                 "consumes": [
                     "multipart/form-data"
@@ -1427,6 +1487,9 @@ var doc = `{
                     "type": "string"
                 },
                 "nickname": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "rights": {

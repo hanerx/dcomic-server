@@ -13,7 +13,7 @@ import (
 func addUploadApi(r *gin.Engine) {
 	upload := r.Group("/upload")
 	{
-		upload.POST("/image", uploadImage)
+		upload.POST("/image", TokenAuth(uploadImage))
 		upload.POST("/manga")
 		upload.GET("/ipfs/:cid", catCid)
 	}
@@ -23,6 +23,7 @@ func addUploadApi(r *gin.Engine) {
 // @Summary 上传图片
 // @Description 上传图片并通过ipfs客户端上传至网络，返回cid
 // @Tags upload
+// @security token
 // @Param image formData file true "图片"
 // @Accept mpfd
 // @Produce json

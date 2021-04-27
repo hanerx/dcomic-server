@@ -15,18 +15,18 @@ func addComicApi(r *gin.Engine) {
 		manga.GET("/search/:keyword", searchComic)
 
 		manga.GET("/:comic_id", getComicById)
-		manga.POST("/:comic_id", addComic)
-		manga.DELETE("/:comic_id", deleteComic)
-		manga.PUT("/:comic_id", updateComic)
+		manga.POST("/:comic_id", TokenAuth(addComic))
+		manga.DELETE("/:comic_id", TokenAuth(deleteComic))
+		manga.PUT("/:comic_id", TokenAuth(updateComic))
 
-		manga.POST("/:comic_id/:group_id", addGroup)
-		manga.PUT("/:comic_id/:group_id", updateGroup)
-		manga.DELETE("/:comic_id/:group_id", deleteGroup)
+		manga.POST("/:comic_id/:group_id", TokenAuth(addGroup))
+		manga.PUT("/:comic_id/:group_id", TokenAuth(updateGroup))
+		manga.DELETE("/:comic_id/:group_id", TokenAuth(deleteGroup))
 		manga.GET("/:comic_id/:group_id", getGroup)
 
-		manga.POST("/:comic_id/:group_id/:chapter_id", addChapter)
-		manga.PUT("/:comic_id/:group_id/:chapter_id", updateChapter)
-		manga.DELETE("/:comic_id/:group_id/:chapter_id", deleteChapter)
+		manga.POST("/:comic_id/:group_id/:chapter_id", TokenAuth(addChapter))
+		manga.PUT("/:comic_id/:group_id/:chapter_id", TokenAuth(updateChapter))
+		manga.DELETE("/:comic_id/:group_id/:chapter_id", TokenAuth(deleteChapter))
 		manga.GET("/:comic_id/:group_id/:chapter_id", getChapter)
 	}
 }
@@ -92,6 +92,7 @@ func getComicById(context *gin.Context) {
 // 新建漫画
 // @Summary 新建漫画
 // @Description 新建一个新漫画
+// @security token
 // @Tags comic
 // @Accept json
 // @Param comic_id path string true "漫画ID"
@@ -125,6 +126,7 @@ func addComic(context *gin.Context) {
 // 更新漫画
 // @Summary 更新漫画内容
 // @Description 通过comic_id更新漫画内容
+// @security token
 // @Tags comic
 // @Accept json
 // @Param comic_id path string true "漫画ID"
@@ -158,6 +160,7 @@ func updateComic(context *gin.Context) {
 // 删除漫画
 // @Summary 删除漫画
 // @Description 通过comic_id删除漫画
+// @security token
 // @Tags comic
 // @Param comic_id path string true "漫画ID"
 // @Produce json
@@ -205,6 +208,7 @@ func getGroup(context *gin.Context) {
 // @Summary 添加章节组
 // @Description 添加一个新的章节组
 // @Tags group
+// @security token
 // @Param comic_id path string true "漫画ID"
 // @Param group_id path string true "组ID"
 // @Param group body model.ComicGroup true "组详情"
@@ -248,6 +252,7 @@ func addGroup(context *gin.Context) {
 // @Summary 修改章节组
 // @Description 通过group_id修改章节组
 // @Tags group
+// @security token
 // @Param comic_id path string true "漫画ID"
 // @Param group_id path string true "组ID"
 // @Param group body model.ComicGroup true "组详情"
@@ -291,6 +296,7 @@ func updateGroup(context *gin.Context) {
 // @Summary 删除章节组
 // @Description 通过group_id删除章节组
 // @Tags group
+// @security token
 // @Param comic_id path string true "漫画ID"
 // @Param group_id path string true "组ID"
 // @Produce json
@@ -358,6 +364,7 @@ func getChapter(context *gin.Context) {
 // @Summary 添加漫画章节
 // @Description 通过chapter_id添加漫画章节
 // @Tags chapter
+// @security token
 // @Param comic_id path string true "漫画ID"
 // @Param group_id path string true "组ID"
 // @Param chapter_id path string true "章节ID"
@@ -403,6 +410,7 @@ func addChapter(context *gin.Context) {
 // @Summary 修改漫画章节
 // @Description 通过chapter_id修改漫画章节
 // @Tags chapter
+// @security token
 // @Param comic_id path string true "漫画ID"
 // @Param group_id path string true "组ID"
 // @Param chapter_id path string true "章节ID"
@@ -448,6 +456,7 @@ func updateChapter(context *gin.Context) {
 // @Summary 删除漫画章节
 // @Description 通过chapter_id删除漫画章节
 // @Tags chapter
+// @security token
 // @Param comic_id path string true "漫画ID"
 // @Param group_id path string true "组ID"
 // @Param chapter_id path string true "章节ID"
