@@ -13,14 +13,6 @@ var Session *mgo.Session
 var Databases *mgo.Database
 var MgoError error
 
-const (
-	MONGO_HOST = "localhost"
-	MONGO_PORT = "27017"
-	MONGO_DB   = "DComic"
-	MONGO_USER = ""
-	MONGO_PWD  = ""
-)
-
 func init() {
 	// 创建链接
 	err := godotenv.Load()

@@ -14,9 +14,9 @@ func addUserApi(r *gin.Engine) {
 		user.POST("/logout", TokenAuth(logout))
 		user.GET("/", TokenAuth(getAllUser))
 		user.GET("/:username", TokenAuth(getUserById))
-		user.POST("/add")
-		user.PUT("/:username")
-		user.DELETE("/:username")
+		user.POST("/:username", TokenAuth(addUser))
+		user.PUT("/:username", TokenAuth(updateUser))
+		user.DELETE("/:username", TokenAuth(deleteUser))
 	}
 }
 
@@ -40,24 +40,47 @@ func TokenAuth(handlerFunc gin.HandlerFunc) gin.HandlerFunc {
 	}
 }
 
+// 获取所有用户
+// @Summary 获取所有用户
+// @Description 获取所有用户详情
+// @security token
+// @Tags user
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct{data=model.User} 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @Router /user/ [get]
 func getAllUser(context *gin.Context) {
 	var users []model.User
 	err := database.Databases.C("user").Find(map[string]string{}).All(&users)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: users})
+		var noPasswordUsers = make([]model.User, len(users))
+		for i := 0; i < len(users); i++ {
+			noPasswordUsers[i] = users[i].GetUserWithoutPassword()
+		}
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: noPasswordUsers})
 	} else {
-		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
+		context.JSON(404, gin.H{"code": 500, "msg": err.Error()})
 	}
 }
 
+// 获取特定用户
+// @Summary 获取特定用户
+// @Description 通过username获取用户详情
+// @security token
+// @Param username path string true "用户名"
+// @Tags user
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct{data=model.User} 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @Router /user/{username} [get]
 func getUserById(context *gin.Context) {
 	username := context.Param("username")
 	var user model.User
 	err := database.Databases.C("user").Find(map[string]string{"username": username}).One(&user)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: user})
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: user.GetUserWithoutPassword()})
 	} else {
-		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
+		context.JSON(404, gin.H{"code": 500, "msg": err.Error()})
 	}
 }
 
@@ -106,18 +129,119 @@ func logout(context *gin.Context) {
 	if exist {
 		var user model.User
 		err := database.Databases.C("user").Find(map[string]interface{}{"username": username}).One(&user)
-		if err==nil{
-			user.Token=""
+		if err == nil {
+			user.Token = ""
 			updateErr := database.Databases.C("user").Update(map[string]interface{}{"username": username}, user)
 			if updateErr == nil {
 				context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
 			} else {
 				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: updateErr.Error()})
 			}
-		}else{
-			context.JSON(401,model.StandJsonStruct{Code:401,Msg: "login required"})
+		} else {
+			context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
 		}
 	} else {
 		context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
+	}
+}
+
+// 添加用户
+// @Summary 添加用户
+// @Description 添加用户
+// @Tags user
+// @security token
+// @Param username path string true "用户名"
+// @Param user body model.User true "用户详情"
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @failure 400 {object} model.StandJsonStruct
+// @Router /user/{username} [post]
+func addUser(context *gin.Context) {
+	username := context.Param("username")
+	err := database.Databases.C("user").Find(map[string]string{"username": username}).One(nil)
+	if err != nil {
+		var user model.User
+		err = context.BindJSON(&user)
+		if err == nil {
+			user.Password = utils.GetPassword(user.Password)
+			user.Username = username
+			user.Token = ""
+			err = database.Databases.C("user").Insert(user)
+			if err == nil {
+				context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+			} else {
+				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+			}
+		} else {
+			context.JSON(400, model.StandJsonStruct{Code: 400, Msg: err.Error()})
+		}
+	} else {
+		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: "user already exist"})
+	}
+}
+
+// 更新用户
+// @Summary 更新用户
+// @Description 更新用户
+// @Tags user
+// @security token
+// @Param username path string true "用户名"
+// @Param user body model.User true "用户详情"
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct 正确返回
+// @failure 500 {object} model.StandJsonStruct 服务器内部错误
+// @failure 400 {object} model.StandJsonStruct body解析错误
+// @failure 404 {object} model.StandJsonStruct 用户不存在
+// @Router /user/{username} [put]
+func updateUser(context *gin.Context) {
+	username := context.Param("username")
+	var user model.User
+	err := database.Databases.C("user").Find(map[string]string{"username": username}).One(&user)
+	if err == nil {
+		password := user.Password
+		err = context.BindJSON(&user)
+		if err == nil {
+			if user.Password != password && user.Password != "" {
+				user.Password = utils.GetPassword(user.Password)
+			} else {
+				user.Password = password
+			}
+			user.Username = username
+			user.Token = ""
+			err = database.Databases.C("user").Update(map[string]string{"username": username}, user)
+			if err == nil {
+				context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+			} else {
+				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+			}
+		} else {
+			context.JSON(400, model.StandJsonStruct{Code: 400, Msg: err.Error()})
+		}
+	} else {
+		context.JSON(404, model.StandJsonStruct{Code: 404, Msg: "user not found"})
+	}
+}
+
+// 删除用户
+// @Summary 删除用户
+// @Description 删除用户
+// @Tags user
+// @security token
+// @Param username path string true "用户名"
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct 正确返回
+// @failure 500 {object} model.StandJsonStruct 服务器内部错误
+// @failure 404 {object} model.StandJsonStruct 用户不存在
+// @Router /user/{username} [delete]
+func deleteUser(context *gin.Context) {
+	username := context.Param("username")
+	err := database.Databases.C("user").Remove(map[string]string{"username": username})
+	if err == nil {
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+	} else {
+		context.JSON(404, model.StandJsonStruct{Code: 404, Msg: "user not found"})
 	}
 }

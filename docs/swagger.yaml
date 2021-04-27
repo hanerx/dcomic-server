@@ -40,6 +40,23 @@ definitions:
       title:
         type: string
     type: object
+  model.Node:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+      timestamp:
+        type: integer
+      token:
+        type: string
+      trust:
+        type: integer
+      type:
+        type: integer
+      version:
+        type: string
+    type: object
   model.StandJsonStruct:
     properties:
       code:
@@ -50,6 +67,30 @@ definitions:
       msg:
         example: success
         type: string
+    type: object
+  model.User:
+    properties:
+      avatar:
+        type: string
+      nickname:
+        type: string
+      rights:
+        items:
+          $ref: '#/definitions/model.UserRight'
+        type: array
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserRight:
+    properties:
+      rightDescription:
+        type: string
+      rightNum:
+        type: integer
+      rightTarget:
+        type: object
     type: object
 host: localhost:8080
 info:
@@ -543,6 +584,85 @@ paths:
       summary: 搜索漫画
       tags:
       - comic
+  /server/add:
+    post:
+      consumes:
+      - application/json
+      description: 添加一个分布式服务器
+      parameters:
+      - description: 服务器详情
+        in: body
+        name: server
+        required: true
+        schema:
+          $ref: '#/definitions/model.Node'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 添加分布式服务器
+      tags:
+      - server
+  /server/delete:
+    delete:
+      description: 删除一个分布式服务器
+      parameters:
+      - description: 服务器地址
+        in: query
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 删除分布式服务器
+      tags:
+      - server
+  /server/state:
+    get:
+      description: 获取服务器状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Node'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取服务器状态
+      tags:
+      - server
   /upload/image:
     post:
       consumes:
@@ -595,6 +715,164 @@ paths:
       summary: 获取ipfs网络内容
       tags:
       - upload
+  /user/:
+    get:
+      description: 获取所有用户详情
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
+      summary: 获取所有用户
+      tags:
+      - user
+  /user/{username}:
+    delete:
+      description: 删除用户
+      parameters:
+      - description: 用户名
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
+      summary: 删除用户
+      tags:
+      - user
+    get:
+      description: 通过username获取用户详情
+      parameters:
+      - description: 用户名
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
+      summary: 获取特定用户
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: 添加用户
+      parameters:
+      - description: 用户名
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: 用户详情
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
+      summary: 添加用户
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: 更新用户
+      parameters:
+      - description: 用户名
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: 用户详情
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
+      summary: 更新用户
+      tags:
+      - user
   /user/login:
     post:
       consumes:

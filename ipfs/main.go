@@ -8,10 +8,6 @@ import (
 	"os"
 )
 
-const (
-	ServerAddr = "localhost"
-	ServerPort = "5001"
-)
 
 var Api *shell.Shell
 

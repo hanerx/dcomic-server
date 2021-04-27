@@ -754,6 +754,131 @@
                 }
             }
         },
+        "/server/add": {
+            "post": {
+                "description": "添加一个分布式服务器",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "server"
+                ],
+                "summary": "添加分布式服务器",
+                "parameters": [
+                    {
+                        "description": "服务器详情",
+                        "name": "server",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Node"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/server/delete": {
+            "delete": {
+                "description": "删除一个分布式服务器",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "server"
+                ],
+                "summary": "删除分布式服务器",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "服务器地址",
+                        "name": "address",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/server/state": {
+            "get": {
+                "description": "获取服务器状态",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "server"
+                ],
+                "summary": "获取服务器状态",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Node"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/upload/image": {
             "post": {
                 "description": "上传图片并通过ipfs客户端上传至网络，返回cid",
@@ -822,6 +947,49 @@
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/": {
+            "get": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
+                "description": "获取所有用户详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "获取所有用户",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.User"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -914,6 +1082,220 @@
                     }
                 }
             }
+        },
+        "/user/{username}": {
+            "get": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
+                "description": "通过username获取用户详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "获取特定用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.User"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
+                "description": "更新用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "更新用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "用户详情",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
+                "description": "添加用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "添加用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "用户详情",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
+                "description": "删除用户",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "删除用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -980,6 +1362,32 @@
                 }
             }
         },
+        "model.Node": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "trust": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "model.StandJsonStruct": {
             "type": "object",
             "properties": {
@@ -993,6 +1401,43 @@
                 "msg": {
                     "type": "string",
                     "example": "success"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "rights": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.UserRight"
+                    }
+                },
+                "token": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserRight": {
+            "type": "object",
+            "properties": {
+                "rightDescription": {
+                    "type": "string"
+                },
+                "rightNum": {
+                    "type": "integer"
+                },
+                "rightTarget": {
+                    "type": "object"
                 }
             }
         }
