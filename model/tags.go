@@ -6,3 +6,8 @@ type ComicTag struct {
 	Cover string `json:"cover" bson:"cover"`
 }
 
+type HomepageTab struct {
+	Name  string        `json:"name"`
+	Title string        `json:"title"`
+	Data  []ComicDetail `json:"data"`
+}
