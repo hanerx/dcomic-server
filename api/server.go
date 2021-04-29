@@ -191,6 +191,7 @@ func nodeGet(context *gin.Context) {
 							Cover:       comics[i].Cover,
 							Tags:        comics[i].Tags,
 							Authors:     comics[i].Authors,
+							ComicId:     comics[i].ComicId,
 							Redirect:    true,
 							RedirectUrl: ip.String(),
 						}
@@ -205,6 +206,7 @@ func nodeGet(context *gin.Context) {
 						Cover:       comics[i].Cover,
 						Tags:        comics[i].Tags,
 						Authors:     comics[i].Authors,
+						ComicId:     comics[i].ComicId,
 						Redirect:    true,
 						RedirectUrl: os.Getenv("hostname"),
 					}
@@ -212,5 +214,7 @@ func nodeGet(context *gin.Context) {
 			}
 		}
 		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: data})
+	} else {
+		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}
 }

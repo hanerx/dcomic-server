@@ -23,7 +23,7 @@ func AutoSync() {
 				server = os.Getenv("hostname")
 			}
 			for i := 0; i < len(nodes); i++ {
-				response, httpErr := http.Get(fmt.Sprintf("http://%s/server/%s", nodes[i].Address, server))
+				response, httpErr := http.Get(fmt.Sprintf("http://%s/server/node/%s", nodes[i].Address, server))
 				if httpErr == nil && response.StatusCode == 200 {
 					body, readErr := ioutil.ReadAll(response.Body)
 					if readErr == nil {
@@ -38,6 +38,7 @@ func AutoSync() {
 						if err == nil {
 							failed := 0
 							success := 0
+							ignore := 0
 							for j := 0; j < len(comics); j++ {
 								var comic model.ComicDetail
 								err = database.Databases.C("comic").Find(map[string]string{"comic_id": comics[j].ComicId}).One(&comic)
@@ -55,15 +56,19 @@ func AutoSync() {
 									} else {
 										failed++
 									}
+								} else {
+									ignore++
 								}
 							}
-							log.Printf("完成与%s同步,成功：%d,失败: %d", nodes[i].Address, success, failed)
+							log.Printf("完成与%s同步,总计: %d,成功：%d,失败: %d,忽略: %d", nodes[i].Address, len(comics), success, failed, ignore)
 						} else {
 							log.Println(err)
 						}
 					} else {
 						log.Println(readErr)
 					}
+				} else {
+					log.Println(httpErr)
 				}
 			}
 		} else {
