@@ -5,6 +5,7 @@ import (
 	"dcomicServer/model"
 	"dcomicServer/utils"
 	"github.com/gin-gonic/gin"
+	"net"
 	"os"
 	"strconv"
 	"time"
@@ -18,8 +19,8 @@ func addServerApi(r *gin.Engine) {
 		server.DELETE("/delete", TokenAuth(deleteServer))
 		server.GET("/state", getServerState)
 		node := server.Group("/node")
-		node.PUT("/", nodeUpdate)
-		node.GET("/")
+		node.PUT("/:servername", nodeUpdate)
+		node.GET("/:servername", nodeGet)
 	}
 }
 
@@ -38,7 +39,17 @@ func getServerState(context *gin.Context) {
 		if envErr != nil {
 			serverMode = 0
 		}
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: model.Node{Address: ip.String(), Timestamp: time.Now().Unix(), Token: "", Trust: 0, Type: serverMode, Version: "1.0.0", Name: os.Getenv("server_name")}})
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: model.Node{
+			Address:     ip.String(),
+			Timestamp:   time.Now().Unix(),
+			Token:       "",
+			Trust:       0,
+			Type:        serverMode,
+			Version:     "1.0.0",
+			Name:        os.Getenv("server_name"),
+			Description: os.Getenv("server_description"),
+			Title:       os.Getenv("server_title"),
+		}})
 	} else {
 		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}
@@ -101,6 +112,35 @@ func deleteServer(context *gin.Context) {
 	}
 }
 
+func ServerAuth(handlerFunc gin.HandlerFunc) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		token := context.Request.Header.Get("token")
+		if token == "" {
+			context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "token required"})
+			context.Abort()
+			return
+		}
+		var server model.Node
+		err := database.Databases.C("server").Find(map[string]string{"token": token}).One(&server)
+		if err != nil || server.Address == "" {
+			context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
+			context.Abort()
+			return
+		}
+		reqIP := context.ClientIP()
+		addr, err := net.ResolveIPAddr("ip", server.Address)
+		if reqIP == server.Address {
+			handlerFunc(context)
+		} else if err == nil && addr.IP.String() == server.Address {
+			handlerFunc(context)
+		} else if err != nil {
+			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+		} else {
+			context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "ip not match"})
+		}
+	}
+}
+
 func nodeUpdate(context *gin.Context) {
 	var comics []model.ComicDetail
 	err := context.BindJSON(&comics)
@@ -132,6 +172,45 @@ func nodeUpdate(context *gin.Context) {
 	}
 }
 
-func nodeGet(context *gin.Context)  {
-
+func nodeGet(context *gin.Context) {
+	var comics []model.ComicDetail
+	err := database.Databases.C("comic").Find(map[string]string{}).All(&comics)
+	if err == nil {
+		data := make([]model.ComicDetail, len(comics))
+		for i := 0; i < len(comics); i++ {
+			if comics[i].Redirect {
+				data[i] = comics[i]
+			} else {
+				if os.Getenv("hostname") == "" {
+					ip, ipErr := utils.GetExternalIP()
+					if ipErr == nil {
+						data[i] = model.ComicDetail{
+							Title:       comics[i].Title,
+							Timestamp:   comics[i].Timestamp,
+							Description: comics[i].Description,
+							Cover:       comics[i].Cover,
+							Tags:        comics[i].Tags,
+							Authors:     comics[i].Authors,
+							Redirect:    true,
+							RedirectUrl: ip.String(),
+						}
+					} else {
+						data[i] = comics[i]
+					}
+				} else {
+					data[i] = model.ComicDetail{
+						Title:       comics[i].Title,
+						Timestamp:   comics[i].Timestamp,
+						Description: comics[i].Description,
+						Cover:       comics[i].Cover,
+						Tags:        comics[i].Tags,
+						Authors:     comics[i].Authors,
+						Redirect:    true,
+						RedirectUrl: os.Getenv("hostname"),
+					}
+				}
+			}
+		}
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: data})
+	}
 }

@@ -2,10 +2,13 @@ package main
 
 import (
 	"dcomicServer/api"
+	cron2 "dcomicServer/cron"
 	"dcomicServer/database"
 	"dcomicServer/model"
 	"dcomicServer/utils"
+	"fmt"
 	"github.com/joho/godotenv"
+	cron "github.com/robfig/cron/v3"
 	"log"
 	"os"
 )
@@ -36,6 +39,14 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+		}
+		crontab := cron.New()
+		// 添加定时任务, * * * * * 是 crontab,表示每分钟执行一次
+		entryID, cronErr := crontab.AddFunc("* * * * *", cron2.AutoSync)
+		// 启动定时器
+		if cronErr == nil {
+			log.Println(fmt.Sprintf("同步器进程：%d", entryID))
+			crontab.Start()
 		}
 		api.Run()
 	}

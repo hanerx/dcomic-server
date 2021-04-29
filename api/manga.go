@@ -3,6 +3,7 @@ package api
 import (
 	"dcomicServer/database"
 	"dcomicServer/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -83,7 +84,10 @@ func getComicById(context *gin.Context) {
 	var detail model.ComicDetail
 	err := database.Databases.C("comic").Find(map[string]string{"comic_id": comicId}).One(&detail)
 	if err == nil {
-		context.JSON(200, detail)
+		if detail.Redirect {
+			context.Redirect(301, fmt.Sprintf("http://%s/comic/%s", detail.RedirectUrl, comicId))
+		}
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: detail})
 	} else {
 		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}
@@ -193,6 +197,9 @@ func getGroup(context *gin.Context) {
 	var comic model.ComicDetail
 	err := database.Databases.C("comic").Find(map[string]string{"comic_id": comicId}).One(&comic)
 	if err == nil {
+		if comic.Redirect {
+			context.Redirect(301, fmt.Sprintf("http://%s/comic/%s/%s", comic.RedirectUrl, comicId, groupId))
+		}
 		group, groupErr := comic.GetGroup(groupId)
 		if groupErr == nil {
 			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: group})
@@ -344,6 +351,9 @@ func getChapter(context *gin.Context) {
 	var comic model.ComicDetail
 	err := database.Databases.C("comic").Find(map[string]string{"comic_id": comicId}).One(&comic)
 	if err == nil {
+		if comic.Redirect {
+			context.Redirect(301, fmt.Sprintf("http://%s/comic/%s/%s/%s", comic.RedirectUrl, comicId, groupId, chapterId))
+		}
 		group, groupErr := comic.GetGroup(groupId)
 		if groupErr == nil {
 			chapter, chapterErr := group.GetChapter(chapterId)

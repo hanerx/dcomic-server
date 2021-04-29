@@ -19,6 +19,12 @@ type ComicGroup struct {
 	Chapters []ComicChapter `json:"data" bson:"chapters"`
 }
 
+type ComicTag struct {
+	TagID string
+	title string
+	cover string
+}
+
 type ComicDetail struct {
 	Title       string       `json:"title" bson:"title"`
 	Cover       string       `json:"cover" bson:"cover"`
@@ -28,6 +34,9 @@ type ComicDetail struct {
 	Timestamp   int64        `json:"timestamp" bson:"timestamp"`
 	Redirect    bool         `json:"redirect" bson:"redirect"`
 	RedirectUrl string       `json:"redirect_url" bson:"redirect_url"`
+	Tags        []ComicTag   `json:"tags" bson:"tags"`
+	Authors     []ComicTag   `json:"authors" bson:"authors"`
+	Status      string       `json:"status" bson:"status"`
 }
 
 type ComicDetailGetter interface {

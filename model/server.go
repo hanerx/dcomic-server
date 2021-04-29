@@ -1,13 +1,15 @@
 package model
 
 type Node struct {
-	Address   string `json:"address" bson:"address"`
-	Timestamp int64  `json:"timestamp" bson:"timestamp"`
-	Token     string `json:"token" bson:"token"`
-	Trust     int    `json:"trust" bson:"trust"`
-	Type      int    `json:"type" bson:"type"`
-	Version   string `json:"version" bson:"version"`
-	Name      string `json:"name" bson:"name"`
+	Address     string `json:"address" bson:"address"`
+	Timestamp   int64  `json:"timestamp" bson:"timestamp"`
+	Token       string `json:"token" bson:"token"`
+	Trust       int    `json:"trust" bson:"trust"`
+	Type        int    `json:"type" bson:"type"`
+	Version     string `json:"version" bson:"version"`
+	Name        string `json:"name" bson:"name"`
+	Title       string `json:"title" bson:"title"`
+	Description string `json:"description" bson:"description"`
 }
 
 type NodeGetter interface {
