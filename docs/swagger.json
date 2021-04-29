@@ -12,6 +12,97 @@
     },
     "host": "localhost:8080",
     "paths": {
+        "/author/": {
+            "get": {
+                "description": "获取所有作者的tag",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "author"
+                ],
+                "summary": "获取作者列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicTag"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/author/{tag_id}": {
+            "get": {
+                "description": "通过author_id获取所有tag",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "author"
+                ],
+                "summary": "获取分类列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "排序方式",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "tag_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/comic/": {
             "get": {
                 "description": "获取所有漫画详情",
@@ -875,6 +966,49 @@
                 }
             }
         },
+        "/server/": {
+            "get": {
+                "security": [
+                    {
+                        "token": []
+                    }
+                ],
+                "description": "获取已有服务器",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "server"
+                ],
+                "summary": "获取所有已有服务器",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Node"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/server/add": {
             "post": {
                 "security": [
@@ -1106,6 +1240,44 @@
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/model.Node"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/tag/": {
+            "get": {
+                "description": "获取所有分类的tag",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tag"
+                ],
+                "summary": "获取分类列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicTag"
                                         }
                                     }
                                 }

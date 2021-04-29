@@ -14,13 +14,32 @@ import (
 func addServerApi(r *gin.Engine) {
 	server := r.Group("/server")
 	{
-		server.GET("/")
+		server.GET("/", TokenAuth(getAllServer))
 		server.POST("/add", TokenAuth(addServer))
 		server.DELETE("/delete", TokenAuth(deleteServer))
 		server.GET("/state", getServerState)
 		node := server.Group("/node")
 		node.POST("/:servername", nodeUpdate)
 		node.GET("/:servername", nodeGet)
+	}
+}
+
+// 获取server
+// @Summary 获取所有已有服务器
+// @Description 获取已有服务器
+// @security token
+// @Tags server
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct{data=model.Node} 正确返回
+// @failure 500 {object} model.StandJsonStruct 内部处理错误或已存在
+// @Router /server/ [get]
+func getAllServer(context *gin.Context) {
+	var nodes []model.Node
+	err := database.Databases.C("server").Find(nil).All(&nodes)
+	if err == nil {
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: nodes})
+	} else {
+		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}
 }
 

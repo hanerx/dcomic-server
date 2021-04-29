@@ -50,7 +50,7 @@ func getTag(context *gin.Context) {
 // @Param tag_id path string true "分类ID"
 // @Success 200 {object} model.StandJsonStruct{data=model.ComicDetail} 正确返回
 // @failure 404 {object} model.StandJsonStruct
-// @Router /tag/{tag_id} [get]
+// @Router /author/{tag_id} [get]
 func getAuthor(context *gin.Context) {
 	tagId := context.Param("tag_id")
 	sort := context.DefaultQuery("sort", "-hot_num")
@@ -63,6 +63,14 @@ func getAuthor(context *gin.Context) {
 	}
 }
 
+// 获取所有tag
+// @Summary 获取分类列表
+// @Description 获取所有分类的tag
+// @Tags tag
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct{data=model.ComicTag} 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @Router /tag/ [get]
 func getAllTag(context *gin.Context) {
 	var tags []model.ComicTag
 	err := database.Databases.C("comic").Find(nil).Distinct("tags", &tags)
@@ -73,6 +81,14 @@ func getAllTag(context *gin.Context) {
 	}
 }
 
+// 获取所有tag
+// @Summary 获取作者列表
+// @Description 获取所有作者的tag
+// @Tags author
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct{data=model.ComicTag} 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @Router /author/ [get]
 func getAllAuthor(context *gin.Context) {
 	var tags []model.ComicTag
 	err := database.Databases.C("comic").Find(nil).Distinct("authors", &tags)

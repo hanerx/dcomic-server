@@ -135,6 +135,60 @@ info:
   title: DComic API
   version: 1.0.0
 paths:
+  /author/:
+    get:
+      description: 获取所有作者的tag
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicTag'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取作者列表
+      tags:
+      - author
+  /author/{tag_id}:
+    get:
+      description: 通过author_id获取所有tag
+      parameters:
+      - description: 排序方式
+        in: query
+        name: sort
+        type: string
+      - description: 分类ID
+        in: path
+        name: tag_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicDetail'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取分类列表
+      tags:
+      - author
   /comic/:
     get:
       description: 获取所有漫画详情
@@ -679,6 +733,30 @@ paths:
       summary: 搜索漫画
       tags:
       - comic
+  /server/:
+    get:
+      description: 获取已有服务器
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Node'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - token: []
+      summary: 获取所有已有服务器
+      tags:
+      - server
   /server/add:
     post:
       consumes:
@@ -830,6 +908,28 @@ paths:
       summary: 获取服务器状态
       tags:
       - server
+  /tag/:
+    get:
+      description: 获取所有分类的tag
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicTag'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取分类列表
+      tags:
+      - tag
   /tag/{tag_id}:
     get:
       description: 通过tag_id获取所有tag
