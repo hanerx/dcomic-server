@@ -87,6 +87,8 @@ func getComicById(context *gin.Context) {
 		if detail.Redirect {
 			context.Redirect(301, fmt.Sprintf("http://%s/comic/%s", detail.RedirectUrl, comicId))
 		}
+		detail.HotNum++
+		_ = database.Databases.C("comic").Update(map[string]string{"comic_id": comicId}, detail)
 		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: detail})
 	} else {
 		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})

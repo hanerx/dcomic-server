@@ -18,14 +18,16 @@ func addTagApi(r *gin.Engine) {
 // @Description 通过tag_id获取所有tag
 // @Tags tag
 // @Produce json
+// @Param sort query string false "排序方式"
 // @Param tag_id path string true "分类ID"
 // @Success 200 {object} model.StandJsonStruct{data=model.ComicDetail} 正确返回
 // @failure 404 {object} model.StandJsonStruct
 // @Router /tag/{tag_id} [get]
 func getTag(context *gin.Context) {
 	tagId := context.Param("tag_id")
+	sort := context.DefaultQuery("sort", "-hot_num")
 	var comics []model.ComicDetail
-	err := database.Databases.C("comic").Find(map[string]string{"tags.tag_id": tagId}).All(&comics)
+	err := database.Databases.C("comic").Find(map[string]string{"tags.tag_id": tagId}).Sort(sort).All(&comics)
 	if err == nil {
 		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: comics})
 	} else {

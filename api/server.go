@@ -19,7 +19,7 @@ func addServerApi(r *gin.Engine) {
 		server.DELETE("/delete", TokenAuth(deleteServer))
 		server.GET("/state", getServerState)
 		node := server.Group("/node")
-		node.PUT("/:servername", nodeUpdate)
+		node.POST("/:servername", nodeUpdate)
 		node.GET("/:servername", nodeGet)
 	}
 }
@@ -147,6 +147,7 @@ func nodeUpdate(context *gin.Context) {
 	if err == nil {
 		failed := 0
 		success := 0
+		ignore := 0
 		for i := 0; i < len(comics); i++ {
 			var comic model.ComicDetail
 			err = database.Databases.C("comic").Find(map[string]string{"comic_id": comics[i].ComicId}).One(&comic)
@@ -164,9 +165,11 @@ func nodeUpdate(context *gin.Context) {
 				} else {
 					failed++
 				}
+			} else {
+				ignore++
 			}
 		}
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: map[string]int{"success": success, "failed": failed}})
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: map[string]int{"success": success, "failed": failed, "ignore": ignore}})
 	} else {
 		context.JSON(400, model.StandJsonStruct{Code: 400, Msg: err.Error()})
 	}

@@ -19,8 +19,6 @@ type ComicGroup struct {
 	Chapters []ComicChapter `json:"data" bson:"chapters"`
 }
 
-
-
 type ComicDetail struct {
 	Title       string       `json:"title" bson:"title"`
 	Cover       string       `json:"cover" bson:"cover"`
@@ -33,6 +31,7 @@ type ComicDetail struct {
 	Tags        []ComicTag   `json:"tags" bson:"tags"`
 	Authors     []ComicTag   `json:"authors" bson:"authors"`
 	Status      string       `json:"status" bson:"status"`
+	HotNum      int64        `json:"hot_num" bson:"hot_num"`
 }
 
 type ComicDetailGetter interface {

@@ -963,6 +963,12 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "排序方式",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "分类ID",
                         "name": "tag_id",
                         "in": "path",
@@ -988,8 +994,8 @@ var doc = `{
                             ]
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/model.StandJsonStruct"
                         }
@@ -1468,6 +1474,9 @@ var doc = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "hot_num": {
+                    "type": "integer"
                 },
                 "redirect": {
                     "type": "boolean"
