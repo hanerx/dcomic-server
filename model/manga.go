@@ -19,11 +19,7 @@ type ComicGroup struct {
 	Chapters []ComicChapter `json:"data" bson:"chapters"`
 }
 
-type ComicTag struct {
-	TagID string
-	title string
-	cover string
-}
+
 
 type ComicDetail struct {
 	Title       string       `json:"title" bson:"title"`

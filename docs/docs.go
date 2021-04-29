@@ -950,6 +950,53 @@ var doc = `{
                 }
             }
         },
+        "/tag/{tag_id}": {
+            "get": {
+                "description": "通过tag_id获取所有tag",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tag"
+                ],
+                "summary": "获取分类列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "tag_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/upload/image": {
             "post": {
                 "security": [
@@ -1401,6 +1448,12 @@ var doc = `{
         "model.ComicDetail": {
             "type": "object",
             "properties": {
+                "authors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ComicTag"
+                    }
+                },
                 "comic_id": {
                     "type": "string"
                 },
@@ -1415,6 +1468,24 @@ var doc = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "redirect": {
+                    "type": "boolean"
+                },
+                "redirect_url": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ComicTag"
+                    }
+                },
+                "timestamp": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
@@ -1438,10 +1509,27 @@ var doc = `{
                 }
             }
         },
+        "model.ComicTag": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "tag_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Node": {
             "type": "object",
             "properties": {
                 "address": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "name": {
@@ -1449,6 +1537,9 @@ var doc = `{
                 },
                 "timestamp": {
                     "type": "integer"
+                },
+                "title": {
+                    "type": "string"
                 },
                 "token": {
                     "type": "string"

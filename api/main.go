@@ -20,6 +20,8 @@ func setupRouter() *gin.Engine {
 
 	addServerApi(r)
 
+	addTagApi(r)
+
 	return r
 }
 
