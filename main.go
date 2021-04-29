@@ -26,6 +26,10 @@ import (
 // @securityDefinitions.apikey token
 // @in header
 // @name token
+
+// @securityDefinitions.apikey server-token
+// @in header
+// @name token
 func main() {
 	err := godotenv.Load()
 	if err != nil {

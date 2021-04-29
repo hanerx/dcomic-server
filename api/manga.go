@@ -15,6 +15,9 @@ func addComicApi(r *gin.Engine) {
 
 		manga.GET("/search/:keyword", searchComic)
 
+		manga.GET("/rank", getRankComic)
+		manga.GET("/new", getNewComic)
+
 		manga.GET("/:comic_id", getComicById)
 		manga.POST("/:comic_id", TokenAuth(addComic))
 		manga.DELETE("/:comic_id", TokenAuth(deleteComic))
@@ -43,6 +46,42 @@ func addComicApi(r *gin.Engine) {
 func getAllComic(context *gin.Context) {
 	var details []model.ComicDetail
 	err := database.Databases.C("comic").Find(map[string]string{}).All(&details)
+	if err == nil {
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+	} else {
+		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
+	}
+}
+
+// 按热度排序
+// @Summary 获取按热度排序的漫画详情
+// @Description 获取按热度排序的漫画详情
+// @Tags comic
+// @Produce json
+// @Success 200 {object} model.ComicDetail{data=model.ComicDetail} 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @Router /comic/rank [get]
+func getRankComic(context *gin.Context) {
+	var details []model.ComicDetail
+	err := database.Databases.C("comic").Find(nil).Sort("-hot_num").All(&details)
+	if err == nil {
+		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+	} else {
+		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
+	}
+}
+
+// 按更新排序
+// @Summary 获取按更新时间排序的漫画详情
+// @Description 获取按更新时间排序的漫画详情
+// @Tags comic
+// @Produce json
+// @Success 200 {object} model.ComicDetail{data=model.ComicDetail} 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @Router /comic/new [get]
+func getNewComic(context *gin.Context) {
+	var details []model.ComicDetail
+	err := database.Databases.C("comic").Find(nil).Sort("-timestamp").All(&details)
 	if err == nil {
 		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
 	} else {

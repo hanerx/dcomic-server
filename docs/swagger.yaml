@@ -607,6 +607,50 @@ paths:
       summary: 修改漫画章节
       tags:
       - chapter
+  /comic/new:
+    get:
+      description: 获取按更新时间排序的漫画详情
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ComicDetail'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicDetail'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取按更新时间排序的漫画详情
+      tags:
+      - comic
+  /comic/rank:
+    get:
+      description: 获取按热度排序的漫画详情
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ComicDetail'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicDetail'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      summary: 获取按热度排序的漫画详情
+      tags:
+      - comic
   /comic/search/{keyword}:
     get:
       description: 通过关键词搜索漫画
@@ -694,6 +738,74 @@ paths:
       security:
       - token: []
       summary: 删除分布式服务器
+      tags:
+      - server
+  /server/node/{address}:
+    get:
+      description: 从目标服务器同步内容
+      parameters:
+      - description: 服务器地址
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.StandJsonStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ComicDetail'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - server-token: []
+      summary: 节点同步接口
+      tags:
+      - server
+    post:
+      consumes:
+      - application/json
+      description: 向目标服务器同步内容
+      parameters:
+      - description: 服务器地址
+        in: path
+        name: address
+        required: true
+        type: string
+      - description: 数据详情
+        in: body
+        name: data
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/model.ComicDetail'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.StandJsonStruct'
+      security:
+      - server-token: []
+      summary: 节点同步接口
       tags:
       - server
   /server/state:
@@ -1016,6 +1128,10 @@ paths:
       tags:
       - user
 securityDefinitions:
+  server-token:
+    in: header
+    name: token
+    type: apiKey
   token:
     in: header
     name: token

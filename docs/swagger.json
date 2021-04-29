@@ -50,6 +50,82 @@
                 }
             }
         },
+        "/comic/new": {
+            "get": {
+                "description": "获取按更新时间排序的漫画详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comic"
+                ],
+                "summary": "获取按更新时间排序的漫画详情",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ComicDetail"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/comic/rank": {
+            "get": {
+                "description": "获取按热度排序的漫画详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comic"
+                ],
+                "summary": "获取按热度排序的漫画详情",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ComicDetail"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/comic/search/{keyword}": {
             "get": {
                 "description": "通过关键词搜索漫画",
@@ -896,6 +972,117 @@
                 }
             }
         },
+        "/server/node/{address}": {
+            "get": {
+                "security": [
+                    {
+                        "server-token": []
+                    }
+                ],
+                "description": "从目标服务器同步内容",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "server"
+                ],
+                "summary": "节点同步接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "服务器地址",
+                        "name": "address",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.StandJsonStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ComicDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "server-token": []
+                    }
+                ],
+                "description": "向目标服务器同步内容",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "server"
+                ],
+                "summary": "节点同步接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "服务器地址",
+                        "name": "address",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "数据详情",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ComicDetail"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.StandJsonStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/server/state": {
             "get": {
                 "description": "获取服务器状态",
@@ -1606,6 +1793,11 @@
         }
     },
     "securityDefinitions": {
+        "server-token": {
+            "type": "apiKey",
+            "name": "token",
+            "in": "header"
+        },
         "token": {
             "type": "apiKey",
             "name": "token",

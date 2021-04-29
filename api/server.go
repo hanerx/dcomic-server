@@ -141,6 +141,19 @@ func ServerAuth(handlerFunc gin.HandlerFunc) gin.HandlerFunc {
 	}
 }
 
+// 节点同步
+// @Summary 节点同步接口
+// @Description 向目标服务器同步内容
+// @security server-token
+// @Tags server
+// @Param address path string true "服务器地址"
+// @Param data body []model.ComicDetail true "数据详情"
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct 正确返回
+// @failure 500 {object} model.StandJsonStruct 内部处理错误或不存在
+// @failure 400 {object} model.StandJsonStruct 缺少参数
+// @Router /server/node/{address} [post]
 func nodeUpdate(context *gin.Context) {
 	var comics []model.ComicDetail
 	err := context.BindJSON(&comics)
@@ -175,6 +188,16 @@ func nodeUpdate(context *gin.Context) {
 	}
 }
 
+// 节点同步
+// @Summary 节点同步接口
+// @Description 从目标服务器同步内容
+// @security server-token
+// @Tags server
+// @Param address path string true "服务器地址"
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct{data=model.ComicDetail} 正确返回
+// @failure 500 {object} model.StandJsonStruct 内部处理错误或不存在
+// @Router /server/node/{address} [get]
 func nodeGet(context *gin.Context) {
 	var comics []model.ComicDetail
 	err := database.Databases.C("comic").Find(map[string]string{}).All(&comics)
@@ -195,6 +218,7 @@ func nodeGet(context *gin.Context) {
 							Tags:        comics[i].Tags,
 							Authors:     comics[i].Authors,
 							ComicId:     comics[i].ComicId,
+							HotNum:      comics[i].HotNum,
 							Redirect:    true,
 							RedirectUrl: ip.String(),
 						}
@@ -210,6 +234,7 @@ func nodeGet(context *gin.Context) {
 						Tags:        comics[i].Tags,
 						Authors:     comics[i].Authors,
 						ComicId:     comics[i].ComicId,
+						HotNum:      comics[i].HotNum,
 						Redirect:    true,
 						RedirectUrl: os.Getenv("hostname"),
 					}
