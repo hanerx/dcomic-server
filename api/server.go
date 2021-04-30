@@ -4,8 +4,11 @@ import (
 	"dcomicServer/database"
 	"dcomicServer/model"
 	"dcomicServer/utils"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"net"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -14,13 +17,17 @@ import (
 func addServerApi(r *gin.Engine) {
 	server := r.Group("/server")
 	{
-		server.GET("/", TokenAuth(getAllServer))
-		server.POST("/add", TokenAuth(addServer))
-		server.DELETE("/delete", TokenAuth(deleteServer))
+		server.GET("/", TokenAuth(getAllServer, 1))
+		server.POST("/add", TokenAuth(addServer, 1))
+		server.DELETE("/delete", TokenAuth(deleteServer, 1))
 		server.GET("/state", getServerState)
 		node := server.Group("/node")
-		node.POST("/:servername", nodeUpdate)
-		node.GET("/:servername", nodeGet)
+		node.POST("/:servername/comic", ServerAuth(nodeUpdateComic))
+		node.GET("/:servername/comic", nodeGetComic)
+		node.POST("/:servername/user", nodeUpdateComic)
+		node.GET("/:servername/user", nodeGetComic)
+		node.POST("/:servername/server", nodeUpdateComic)
+		node.GET("/:servername/server", nodeGetComic)
 	}
 }
 
@@ -52,26 +59,32 @@ func getAllServer(context *gin.Context) {
 // @failure 500 {object} model.StandJsonStruct 内部处理错误或已存在
 // @Router /server/state [get]
 func getServerState(context *gin.Context) {
-	ip, err := utils.GetExternalIP()
-	if err == nil {
-		serverMode, envErr := strconv.Atoi(os.Getenv("server_mode"))
-		if envErr != nil {
-			serverMode = 0
-		}
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: model.Node{
-			Address:     ip.String(),
-			Timestamp:   time.Now().Unix(),
-			Token:       "",
-			Trust:       0,
-			Type:        serverMode,
-			Version:     "1.0.0",
-			Name:        os.Getenv("server_name"),
-			Description: os.Getenv("server_description"),
-			Title:       os.Getenv("server_title"),
-		}})
-	} else {
-		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+
+	serverMode, envErr := strconv.Atoi(os.Getenv("server_mode"))
+	if envErr != nil {
+		serverMode = 0
 	}
+	address := os.Getenv("hostname")
+	if address == "" {
+		ip, err := utils.GetExternalIP()
+		if err == nil {
+			address = ip.String() + ":" + os.Getenv("port")
+		} else {
+			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+			return
+		}
+	}
+	context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: model.Node{
+		Address:     address,
+		Timestamp:   time.Now().Unix(),
+		Token:       "",
+		Trust:       0,
+		Type:        serverMode,
+		Version:     "1.0.0",
+		Name:        os.Getenv("server_name"),
+		Description: os.Getenv("server_description"),
+		Title:       os.Getenv("server_title"),
+	}})
 }
 
 // 添加server
@@ -92,11 +105,37 @@ func addServer(context *gin.Context) {
 	if err == nil {
 		err = database.Databases.C("server").Find(map[string]string{"address": node.Address}).One(nil)
 		if err != nil {
-			err = database.Databases.C("server").Insert(node)
-			if err == nil {
-				context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+			response, httpErr := http.Get(fmt.Sprintf("http://%s/server/state", node.Address))
+			if httpErr == nil && response.StatusCode == 200 {
+				body, readErr := ioutil.ReadAll(response.Body)
+				if readErr == nil {
+					type Response struct {
+						Code int        `json:"code"`
+						Msg  string     `json:"msg"`
+						Data model.Node `json:"data"`
+					}
+					var jsonData Response
+					err = json.Unmarshal(body, &jsonData)
+					if err == nil {
+						node.Title = jsonData.Data.Title
+						node.Description = jsonData.Data.Description
+						node.Version = jsonData.Data.Version
+						node.Name = jsonData.Data.Name
+						node.Type = jsonData.Data.Type
+						err = database.Databases.C("server").Insert(node)
+						if err == nil {
+							context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+						} else {
+							context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+						}
+					} else {
+						context.JSON(500, model.StandJsonStruct{Code: 500, Msg: "server check error", Data: err})
+					}
+				} else {
+					context.JSON(500, model.StandJsonStruct{Code: 500, Msg: "server check error", Data: readErr})
+				}
 			} else {
-				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: "server check error", Data: httpErr})
 			}
 		} else {
 			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: "server already exist"})
@@ -146,17 +185,18 @@ func ServerAuth(handlerFunc gin.HandlerFunc) gin.HandlerFunc {
 			context.Abort()
 			return
 		}
-		reqIP := context.ClientIP()
-		addr, err := net.ResolveIPAddr("ip", server.Address)
-		if reqIP == server.Address {
-			handlerFunc(context)
-		} else if err == nil && addr.IP.String() == server.Address {
-			handlerFunc(context)
-		} else if err != nil {
-			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
-		} else {
-			context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "ip not match"})
-		}
+		handlerFunc(context)
+		//reqIP := context.ClientIP()
+		//addr, err := net.ResolveIPAddr("ip", server.Address)
+		//if reqIP == server.Address {
+		//	handlerFunc(context)
+		//} else if err == nil && addr.IP.String() == server.Address {
+		//	handlerFunc(context)
+		//} else if err != nil {
+		//	context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+		//} else {
+		//	context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "ip not match"})
+		//}
 	}
 }
 
@@ -172,8 +212,8 @@ func ServerAuth(handlerFunc gin.HandlerFunc) gin.HandlerFunc {
 // @Success 200 {object} model.StandJsonStruct 正确返回
 // @failure 500 {object} model.StandJsonStruct 内部处理错误或不存在
 // @failure 400 {object} model.StandJsonStruct 缺少参数
-// @Router /server/node/{address} [post]
-func nodeUpdate(context *gin.Context) {
+// @Router /server/node/{address}/comic [post]
+func nodeUpdateComic(context *gin.Context) {
 	var comics []model.ComicDetail
 	err := context.BindJSON(&comics)
 	if err == nil {
@@ -216,8 +256,8 @@ func nodeUpdate(context *gin.Context) {
 // @Produce json
 // @Success 200 {object} model.StandJsonStruct{data=model.ComicDetail} 正确返回
 // @failure 500 {object} model.StandJsonStruct 内部处理错误或不存在
-// @Router /server/node/{address} [get]
-func nodeGet(context *gin.Context) {
+// @Router /server/node/{address}/comic [get]
+func nodeGetComic(context *gin.Context) {
 	var comics []model.ComicDetail
 	err := database.Databases.C("comic").Find(map[string]string{}).All(&comics)
 	if err == nil {
@@ -264,4 +304,20 @@ func nodeGet(context *gin.Context) {
 	} else {
 		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}
+}
+
+func nodePutUser(context *gin.Context) {
+
+}
+
+func nodeGetUser(context *gin.Context) {
+
+}
+
+func nodePutServer(context *gin.Context) {
+
+}
+
+func nodeGetServer(context *gin.Context) {
+
 }

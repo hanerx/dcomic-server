@@ -19,18 +19,18 @@ func addComicApi(r *gin.Engine) {
 		manga.GET("/new", getNewComic)
 
 		manga.GET("/:comic_id", getComicById)
-		manga.POST("/:comic_id", TokenAuth(addComic))
-		manga.DELETE("/:comic_id", TokenAuth(deleteComic))
-		manga.PUT("/:comic_id", TokenAuth(updateComic))
+		manga.POST("/:comic_id", TokenAuth(addComic, 1))
+		manga.DELETE("/:comic_id", TokenAuth(deleteComic, 1))
+		manga.PUT("/:comic_id", TokenAuth(updateComic, 1))
 
-		manga.POST("/:comic_id/:group_id", TokenAuth(addGroup))
-		manga.PUT("/:comic_id/:group_id", TokenAuth(updateGroup))
-		manga.DELETE("/:comic_id/:group_id", TokenAuth(deleteGroup))
+		manga.POST("/:comic_id/:group_id", TokenAuth(addGroup, 1))
+		manga.PUT("/:comic_id/:group_id", TokenAuth(updateGroup, 1))
+		manga.DELETE("/:comic_id/:group_id", TokenAuth(deleteGroup, 1))
 		manga.GET("/:comic_id/:group_id", getGroup)
 
-		manga.POST("/:comic_id/:group_id/:chapter_id", TokenAuth(addChapter))
-		manga.PUT("/:comic_id/:group_id/:chapter_id", TokenAuth(updateChapter))
-		manga.DELETE("/:comic_id/:group_id/:chapter_id", TokenAuth(deleteChapter))
+		manga.POST("/:comic_id/:group_id/:chapter_id", TokenAuth(addChapter, 1))
+		manga.PUT("/:comic_id/:group_id/:chapter_id", TokenAuth(updateChapter, 1))
+		manga.DELETE("/:comic_id/:group_id/:chapter_id", TokenAuth(deleteChapter, 1))
 		manga.GET("/:comic_id/:group_id/:chapter_id", getChapter)
 	}
 }

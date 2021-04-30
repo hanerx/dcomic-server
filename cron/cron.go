@@ -21,14 +21,14 @@ func AutoSync() {
 		case "0":
 			return
 		case "1":
-			PutSync(nodes)
+			PutSyncComic(nodes)
 			break
 		case "2":
-			GetSync(nodes)
+			GetSyncComic(nodes)
 			break
 		case "3":
-			GetSync(nodes)
-			PutSync(nodes)
+			GetSyncComic(nodes)
+			PutSyncComic(nodes)
 			break
 		default:
 			return
@@ -38,7 +38,7 @@ func AutoSync() {
 	}
 }
 
-func GetSync(nodes []model.Node) {
+func GetSyncComic(nodes []model.Node) {
 	ip, ipErr := utils.GetExternalIP()
 	if ipErr == nil {
 		server := ip.String()
@@ -46,7 +46,7 @@ func GetSync(nodes []model.Node) {
 			server = os.Getenv("hostname")
 		}
 		for i := 0; i < len(nodes); i++ {
-			response, httpErr := http.Get(fmt.Sprintf("http://%s/server/node/%s", nodes[i].Address, server))
+			response, httpErr := http.Get(fmt.Sprintf("http://%s/server/node/%s/comic", nodes[i].Address, server))
 			if httpErr == nil && response.StatusCode == 200 {
 				body, readErr := ioutil.ReadAll(response.Body)
 				if readErr == nil {
@@ -99,7 +99,7 @@ func GetSync(nodes []model.Node) {
 	}
 }
 
-func PutSync(nodes []model.Node) {
+func PutSyncComic(nodes []model.Node) {
 	var comics []model.ComicDetail
 	err := database.Databases.C("comic").Find(nil).All(&comics)
 	if err == nil {
@@ -145,29 +145,37 @@ func PutSync(nodes []model.Node) {
 
 				jsonData, jsonErr := json.Marshal(data)
 				if jsonErr == nil {
-					response, httpErr := http.Post(fmt.Sprintf("http://%s/server/node/%s", nodes[i].Address, server), "application/json", bytes.NewBuffer(jsonData))
+					client := &http.Client{}
+					request, httpErr := http.NewRequest("POST", fmt.Sprintf("http://%s/server/node/%s/comic", nodes[i].Address, server), bytes.NewBuffer(jsonData))
 					if httpErr == nil {
-						body, readErr := ioutil.ReadAll(response.Body)
-						if readErr == nil {
-							type Data struct {
-								Success int `json:"success"`
-								Failed  int `json:"failed"`
-								Ignore  int `json:"ignore"`
-							}
-							type Response struct {
-								Code int    `json:"code"`
-								Msg  string `json:"msg"`
-								Data Data   `json:"data"`
-							}
-							var responseData Response
-							err = json.Unmarshal(body, &responseData)
-							if err == nil {
-								log.Printf("完成向 %s 的同步操作,总计: %d,成功：%d,失败: %d,忽略: %d", nodes[i].Address, len(comics), responseData.Data.Success, responseData.Data.Failed, responseData.Data.Ignore)
+						request.Header.Add("Content-Type", "application/json")
+						request.Header.Add("token", nodes[i].Token)
+						response, responseErr := client.Do(request)
+						if responseErr == nil {
+							body, readErr := ioutil.ReadAll(response.Body)
+							if readErr == nil {
+								type Data struct {
+									Success int `json:"success"`
+									Failed  int `json:"failed"`
+									Ignore  int `json:"ignore"`
+								}
+								type Response struct {
+									Code int    `json:"code"`
+									Msg  string `json:"msg"`
+									Data Data   `json:"data"`
+								}
+								var responseData Response
+								err = json.Unmarshal(body, &responseData)
+								if err == nil {
+									log.Printf("完成向 %s 的同步操作,总计: %d,成功：%d,失败: %d,忽略: %d", nodes[i].Address, len(comics), responseData.Data.Success, responseData.Data.Failed, responseData.Data.Ignore)
+								} else {
+									log.Println(err)
+								}
 							} else {
-								log.Println(err)
+								log.Println(readErr)
 							}
 						} else {
-							log.Println(readErr)
+							log.Println(responseErr)
 						}
 					} else {
 						log.Println(httpErr)
@@ -182,4 +190,20 @@ func PutSync(nodes []model.Node) {
 	} else {
 		log.Println(err)
 	}
+}
+
+func GetSyncUser(nodes []model.Node) {
+
+}
+
+func PutSyncUser(nodes []model.Node) {
+
+}
+
+func GetSyncServer(nodes []model.Node) {
+
+}
+
+func PutSyncServer(nodes []model.Node) {
+
 }

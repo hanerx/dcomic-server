@@ -38,7 +38,8 @@ func main() {
 		var user model.User
 		err = database.Databases.C("user").Find(map[string]string{"username": os.Getenv("root_username")}).One(&user)
 		if err != nil {
-			user = model.User{Username: os.Getenv("root_username"), Password: utils.GetPassword(os.Getenv("root_password")), Avatar: "./cover.png", Nickname: "root"}
+			rights := []model.UserRight{{RightDescription: "管理员权限", RightNum: 1}, {RightNum: 2, RightDescription: "用户权限"}}
+			user = model.User{Username: os.Getenv("root_username"), Password: utils.GetPassword(os.Getenv("root_password")), Avatar: os.Getenv("root_avatar"), Nickname: "root", Rights: rights}
 			err = database.Databases.C("user").Insert(user)
 			if err != nil {
 				log.Fatal(err)

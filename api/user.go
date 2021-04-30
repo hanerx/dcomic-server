@@ -5,22 +5,29 @@ import (
 	"dcomicServer/model"
 	"dcomicServer/utils"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func addUserApi(r *gin.Engine) {
 	user := r.Group("/user")
 	{
 		user.POST("/login", login)
-		user.POST("/logout", TokenAuth(logout))
-		user.GET("/", TokenAuth(getAllUser))
-		user.GET("/:username", TokenAuth(getUserById))
-		user.POST("/:username", TokenAuth(addUser))
-		user.PUT("/:username", TokenAuth(updateUser))
-		user.DELETE("/:username", TokenAuth(deleteUser))
+		user.POST("/logout", TokenAuth(logout, 0))
+		user.GET("/my", TokenAuth(getMyInfo, 0))
+		user.GET("/", TokenAuth(getAllUser, 1))
+		user.GET("/:username", TokenAuth(getUserById, 1))
+		user.POST("/:username", TokenAuth(addUser, 1))
+		user.PUT("/:username", TokenAuth(updateUser, 0))
+		user.DELETE("/:username", TokenAuth(deleteUser, 1))
+		subscribe := user.Group("/subscribe")
+		subscribe.GET("/", TokenAuth(getSubscribe, 0))
+		subscribe.GET("/:comic_id", TokenAuth(getIfSubscribe, 0))
+		subscribe.POST("/:comic_id", TokenAuth(addSubscribe, 0))
+		subscribe.DELETE("/:comic_id", TokenAuth(cancelSubscribe, 0))
 	}
 }
 
-func TokenAuth(handlerFunc gin.HandlerFunc) gin.HandlerFunc {
+func TokenAuth(handlerFunc gin.HandlerFunc, rightNum int) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		token := context.Request.Header.Get("token")
 		if token == "" {
@@ -29,7 +36,12 @@ func TokenAuth(handlerFunc gin.HandlerFunc) gin.HandlerFunc {
 			return
 		}
 		var user model.User
-		err := database.Databases.C("user").Find(map[string]string{"token": token}).One(&user)
+		var err error
+		if rightNum == 0 {
+			err = database.Databases.C("user").Find(map[string]string{"token": token}).One(&user)
+		} else {
+			err = database.Databases.C("user").Find(map[string]interface{}{"token": token, "rights.right_num": rightNum}).One(&user)
+		}
 		if err != nil || user.Username == "" {
 			context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
 			context.Abort()
@@ -243,5 +255,116 @@ func deleteUser(context *gin.Context) {
 		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
 	} else {
 		context.JSON(404, model.StandJsonStruct{Code: 404, Msg: "user not found"})
+	}
+}
+
+// 获取特定用户
+// @Summary 获取自己的用户信息
+// @Description 获取登录token的用户信息
+// @security token
+// @Tags user
+// @Produce json
+// @Success 200 {object} model.StandJsonStruct{data=model.User} 正确返回
+// @failure 500 {object} model.StandJsonStruct
+// @Router /user/my [get]
+func getMyInfo(context *gin.Context) {
+	username, exist := context.Get("username")
+	if exist {
+		var user model.User
+		err := database.Databases.C("user").Find(map[string]interface{}{"username": username}).One(&user)
+		if err == nil {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: user.GetUserWithoutPassword()})
+		} else {
+			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+		}
+	} else {
+		context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
+	}
+}
+
+func getSubscribe(context *gin.Context) {
+	username, exist := context.Get("username")
+	if exist {
+		var user model.User
+		err := database.Databases.C("user").Find(map[string]interface{}{"username": username}).One(&user)
+		if err == nil {
+			subscribes, subErr := user.GetSubscribe()
+			if subErr == nil {
+				context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: subscribes})
+			} else {
+				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: subErr.Error()})
+			}
+		} else {
+			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+		}
+	} else {
+		context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
+	}
+}
+
+func addSubscribe(context *gin.Context) {
+	username, exist := context.Get("username")
+	if exist {
+		var user model.User
+		err := database.Databases.C("user").Find(map[string]interface{}{"username": username}).One(&user)
+		if err == nil {
+			comicId := context.Param("comic_id")
+			err = user.AddSubscribe(comicId)
+			if err == nil {
+				err = database.Databases.C("user").Update(map[string]interface{}{"username": username}, user)
+				if err == nil {
+					context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+				} else {
+					context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+				}
+			} else {
+				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+			}
+		} else {
+			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+		}
+	} else {
+		context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
+	}
+}
+
+func cancelSubscribe(context *gin.Context) {
+	username, exist := context.Get("username")
+	if exist {
+		var user model.User
+		err := database.Databases.C("user").Find(map[string]interface{}{"username": username}).One(&user)
+		if err == nil {
+			comicId := context.Param("comic_id")
+			err = user.CancelSubscribe(comicId)
+			if err == nil {
+				err = database.Databases.C("user").Update(map[string]interface{}{"username": username}, user)
+				if err == nil {
+					context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+				} else {
+					context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+				}
+			} else {
+				context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+			}
+		} else {
+			context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
+		}
+	} else {
+		context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
+	}
+}
+
+func getIfSubscribe(context *gin.Context) {
+	username, exist := context.Get("username")
+	if exist {
+		comicId := context.Param("comic_id")
+		err := database.Databases.C("user").Find(bson.M{"username": username, "subscribes.comic_id": comicId}).One(nil)
+		if err == nil {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
+		} else {
+			context.JSON(404, model.StandJsonStruct{Code: 404, Msg: "not found"})
+		}
+	} else {
+		context.JSON(401, model.StandJsonStruct{Code: 401, Msg: "login required"})
 	}
 }

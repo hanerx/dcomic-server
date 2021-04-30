@@ -13,7 +13,7 @@ import (
 func addUploadApi(r *gin.Engine) {
 	upload := r.Group("/upload")
 	{
-		upload.POST("/image", TokenAuth(uploadImage))
+		upload.POST("/image", TokenAuth(uploadImage,0))
 		upload.POST("/manga")
 		upload.GET("/ipfs/:cid", catCid)
 	}
