@@ -44,7 +44,12 @@ func getAllServer(context *gin.Context) {
 	var nodes []model.Node
 	err := database.Databases.C("server").Find(nil).All(&nodes)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: nodes})
+		if nodes == nil {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: []model.Node{}})
+		} else {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: nodes})
+		}
+
 	} else {
 		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}

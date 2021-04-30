@@ -75,7 +75,11 @@ func getAllTag(context *gin.Context) {
 	var tags []model.ComicTag
 	err := database.Databases.C("comic").Find(nil).Distinct("tags", &tags)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: tags})
+		if tags == nil {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: []model.ComicTag{}})
+		} else {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: tags})
+		}
 	} else {
 		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}
@@ -93,7 +97,11 @@ func getAllAuthor(context *gin.Context) {
 	var tags []model.ComicTag
 	err := database.Databases.C("comic").Find(nil).Distinct("authors", &tags)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: tags})
+		if tags == nil {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: []model.ComicTag{}})
+		} else {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: tags})
+		}
 	} else {
 		context.JSON(500, model.StandJsonStruct{Code: 500, Msg: err.Error()})
 	}

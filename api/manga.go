@@ -14,6 +14,7 @@ func addComicApi(r *gin.Engine) {
 		manga.GET("/", getAllComic)
 
 		manga.GET("/search/:keyword", searchComic)
+		manga.GET("/search", getAllComic)
 
 		manga.GET("/rank", getRankComic)
 		manga.GET("/new", getNewComic)
@@ -47,7 +48,11 @@ func getAllComic(context *gin.Context) {
 	var details []model.ComicDetail
 	err := database.Databases.C("comic").Find(map[string]string{}).All(&details)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		if details == nil {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: []model.ComicDetail{}})
+		} else {
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		}
 	} else {
 		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
 	}
@@ -65,7 +70,11 @@ func getRankComic(context *gin.Context) {
 	var details []model.ComicDetail
 	err := database.Databases.C("comic").Find(nil).Sort("-hot_num").All(&details)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		if details==nil{
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: []model.ComicDetail{}})
+		}else{
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		}
 	} else {
 		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
 	}
@@ -83,7 +92,11 @@ func getNewComic(context *gin.Context) {
 	var details []model.ComicDetail
 	err := database.Databases.C("comic").Find(nil).Sort("-timestamp").All(&details)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		if details==nil{
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: []model.ComicDetail{}})
+		}else{
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		}
 	} else {
 		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
 	}
@@ -103,7 +116,11 @@ func searchComic(context *gin.Context) {
 	var details []model.ComicDetail
 	err := database.Databases.C("comic").Find(bson.M{"title": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}}}).All(&details)
 	if err == nil {
-		context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		if details==nil{
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: []model.ComicDetail{}})
+		}else{
+			context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success", Data: details})
+		}
 	} else {
 		context.JSON(500, gin.H{"code": 500, "msg": err.Error()})
 	}
