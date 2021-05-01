@@ -214,6 +214,7 @@ func updateUser(context *gin.Context) {
 	err := database.Databases.C("user").Find(map[string]string{"username": username}).One(&user)
 	if err == nil {
 		password := user.Password
+		token := user.Token
 		err = context.BindJSON(&user)
 		if err == nil {
 			if user.Password != password && user.Password != "" {
@@ -222,7 +223,7 @@ func updateUser(context *gin.Context) {
 				user.Password = password
 			}
 			user.Username = username
-			user.Token = ""
+			user.Token = token
 			err = database.Databases.C("user").Update(map[string]string{"username": username}, user)
 			if err == nil {
 				context.JSON(200, model.StandJsonStruct{Code: 200, Msg: "success"})
