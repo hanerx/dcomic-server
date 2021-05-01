@@ -1,61 +1,59 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"dcomicServer/api"
+	cron2 "dcomicServer/cron"
+	"dcomicServer/database"
+	"dcomicServer/model"
+	"dcomicServer/utils"
+	"fmt"
+	"github.com/joho/godotenv"
+	cron "github.com/robfig/cron/v3"
+	"log"
+	"os"
 )
 
+// @title DComic API
+// @version 1.0.0
+// @description  DComic API Doc
+// @termsOfService http://github.com/hanerx
 
-func setupRouter() *gin.Engine {
-	// Disable Console Color
-	// gin.DisableConsoleColor()
-	r := gin.Default()
+// @contact.name GITHUB ISSUE
+// @contact.url http://www.github.com/hanerx/dcomic-server/issues
 
-	util := r.Group("/")
-	{
-		util.GET("/", func(context *gin.Context) {
-			context.JSON(200, gin.H{"code": 1, "msg": "success"})
-		})
+//@host localhost:8080
 
-		util.GET("/server_state", func(context *gin.Context) {
-			context.JSON(200,gin.H{"code":1,"msg":"server is alive"})
-		})
+// @securityDefinitions.apikey token
+// @in header
+// @name token
 
-		util.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	}
-
-	user := r.Group("/user")
-	{
-		user.POST("/login")
-
-	}
-
-	manga := r.Group("/comic")
-	{
-		manga.GET("/")
-	}
-
-	upload := r.Group("/upload")
-	{
-		upload.POST("/image")
-		upload.POST("/manga")
-	}
-
-	server:=r.Group("/server")
-	{
-		server.POST("/add")
-		server.GET("/")
-	}
-
-	return r
-}
-
+// @securityDefinitions.apikey server-token
+// @in header
+// @name token
 func main() {
-	r := setupRouter()
-	// Listen and Server in 0.0.0.0:8080
-	err := r.Run(":8080")
+	err := godotenv.Load()
 	if err != nil {
-		print(err)
+		log.Fatal(err)
+	} else {
+		var user model.User
+		err = database.Databases.C("user").Find(map[string]string{"username": os.Getenv("root_username")}).One(&user)
+		if err != nil {
+			rights := []model.UserRight{{RightDescription: "管理员权限", RightNum: 1}, {RightNum: 2, RightDescription: "用户权限"}}
+			user = model.User{Username: os.Getenv("root_username"), Password: utils.GetPassword(os.Getenv("root_password")), Avatar: os.Getenv("root_avatar"), Nickname: "root", Rights: rights}
+			err = database.Databases.C("user").Insert(user)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		crontab := cron.New()
+		// 添加定时任务, * * * * * 是 crontab,表示每分钟执行一次
+		entryID, cronErr := crontab.AddFunc("* * * * *", cron2.AutoSync)
+		// 启动定时器
+		if cronErr == nil {
+			log.Println(fmt.Sprintf("同步器进程：%d", entryID))
+			crontab.Start()
+		}
+		api.Run()
 	}
+	//database.Demos()
 }
