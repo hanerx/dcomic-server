@@ -284,7 +284,7 @@ func nodeGetComic(context *gin.Context) {
 							ComicId:     comics[i].ComicId,
 							HotNum:      comics[i].HotNum,
 							Redirect:    true,
-							RedirectUrl: ip.String(),
+							RedirectUrl: ip.String() + ":" + os.Getenv("port"),
 						}
 					} else {
 						data[i] = comics[i]
@@ -300,7 +300,7 @@ func nodeGetComic(context *gin.Context) {
 						ComicId:     comics[i].ComicId,
 						HotNum:      comics[i].HotNum,
 						Redirect:    true,
-						RedirectUrl: os.Getenv("hostname"),
+						RedirectUrl: os.Getenv("hostname") + ":" + os.Getenv("port"),
 					}
 				}
 			}
